@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="NTRU算法详解                           算法背景           NTRU是Hoffstem、Pipher和silverman在1998年提出的一种新的公钥密码体制。该体制是建立在多项式环的基础之上的，其安全性基于格上最短向量问题，可以有效抵抗Shor算法。由于NTRU运算简洁快速，与目前广泛使用的公钥密码系统RSA及椭圆曲">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NTRU算法详解">
+<meta property="og:url" content="https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="cc&#39;s Blog">
+<meta property="og:description" content="NTRU算法详解                           算法背景           NTRU是Hoffstem、Pipher和silverman在1998年提出的一种新的公钥密码体制。该体制是建立在多项式环的基础之上的，其安全性基于格上最短向量问题，可以有效抵抗Shor算法。由于NTRU运算简洁快速，与目前广泛使用的公钥密码系统RSA及椭圆曲">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/:/56283e34652f416aa83ba60b4c515dc8">
+<meta property="og:image" content="https://img2020.cnblogs.com/blog/1169376/202003/1169376-20200331095438297-372265146.png">
+<meta property="article:published_time" content="2022-04-09T06:17:00.000Z">
+<meta property="article:modified_time" content="2022-04-09T12:23:20.969Z">
+<meta property="article:author" content="Cc">
+<meta property="article:tag" content="NTRU">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/:/56283e34652f416aa83ba60b4c515dc8"><title>NTRU算法详解 | cc's Blog</title><link ref="canonical" href="https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="cc's Blog" type="application/atom+xml">
+</head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">cc's Blog</div><div class="header-banner-info__subtitle"></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">NTRU算法详解</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2022-04-09</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2022-04-09</span></span></div></header><div class="post-body">
+        <h1 id="NTRU算法详解"   >
+          <a href="#NTRU算法详解" class="heading-link"><i class="fas fa-link"></i></a><a href="#NTRU算法详解" class="headerlink" title="NTRU算法详解"></a>NTRU算法详解</h1>
+      
+        <h2 id="算法背景"   >
+          <a href="#算法背景" class="heading-link"><i class="fas fa-link"></i></a><a href="#算法背景" class="headerlink" title="算法背景"></a>算法背景</h2>
+      <pre><code>    NTRU是Hoffstem、Pipher和silverman在1998年提出的一种新的公钥密码体制。该体制是建立在多项式环的基础之上的，其安全性基于格上最短向量问题，可以有效抵抗Shor算法。由于NTRU运算简洁快速，与目前广泛使用的公钥密码系统RSA及椭圆曲线密码系统相比较，在安全要求相同的情况下，NTRU产生密钥对更快，在加密和解密效率上也具有一定的优势。但NTRU的原始方案的安全性一直没有得到严格的证明。
+
+    2011年，Stehle D，SteinfeldR在理想格上基于R-LWE问题构造了选择明文攻击安全的NTRU加密体制。2012年，Ron Steinfeld等人在理想格上提出了选择密文攻击安全的NTRU加密体制。
+</code></pre>
+
+        <h2 id="算法流程"   >
+          <a href="#算法流程" class="heading-link"><i class="fas fa-link"></i></a><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h2>
+      <p><img src=":/56283e34652f416aa83ba60b4c515dc8" alt="45454f65d2ae336cbc09c4e8178e8769.png"></p>
+
+        <h3 id="参数选取"   >
+          <a href="#参数选取" class="heading-link"><i class="fas fa-link"></i></a><a href="#参数选取" class="headerlink" title="参数选取"></a>参数选取</h3>
+      <p>N：次数参数，素数</p>
+<p>q：大模数，正整数</p>
+<p>p：小模数，奇素数或多项式</p>
+<p>d：用来限制非0系数的个数，正整数</p>
+<p>f(x)：模多项式，N次整系数多项式，将格$Z^N$构造为环$Z[x]/f(x)$</p>
+<p>经典参数值：</p>
+<p>$$<br>(N，q，p，d，f(x))=(251，256，3，72，x^N-1)<br>$$</p>
+
+        <h3 id="密钥生成"   >
+          <a href="#密钥生成" class="heading-link"><i class="fas fa-link"></i></a><a href="#密钥生成" class="headerlink" title="密钥生成"></a>密钥生成</h3>
+      <p>公钥：$(N, p, q, h(x))<br>$</p>
+<p>私钥：$(f(x), f_{p}^{-1}(x))$</p>
+<ol>
+<li><p><strong>生成$f(x),f_{q}^{-1}(x),f_{p}^{-1}(x)$</strong></p>
+<p>（1）在格$Z[x]$上选取多项式$f(x)$，满足$f(x)$的次数不超过N-1，系数为${-1, 0, 1}$中的值，且有d+1个系数为1，d个系数为-1，其他系数为0。</p>
+<p>（2）检验$f(x)$在环$Z_q[x]/f(x)$上是否可逆，如果可逆则计算逆元$f_{q}^{-1}(x)$</p>
+<p>（3）检验$f(x)$在环$Z_p[x]/f(x)$上是否可逆，如果可逆则计算逆元$f_{p}^{-1}(x)$</p>
+<p>重复上述步骤，直至得到$(f_{q}^{-1}(x), f_{p}^{-1}(x))$</p>
+</li>
+<li><p><strong>生成</strong>$g(x)$</p>
+<p>在格Z[x]上选取多项式$f(x)$，满足$f(x)$的次数不超过N-1，系数为${-1, 0, 1}$中的值，且有d+1个系数为1，d个系数为-1，其他系数为0</p>
+</li>
+<li><p><strong>计算</strong>$h(x)$</p>
+</li>
+</ol>
+<p>$$<br>h(x) \equiv pg(x)f_{q}^{-1}(x) \pmod{q}<br>$$</p>
+
+        <h3 id="加密阶段"   >
+          <a href="#加密阶段" class="heading-link"><i class="fas fa-link"></i></a><a href="#加密阶段" class="headerlink" title="加密阶段"></a>加密阶段</h3>
+      <ol>
+<li><p>将明文编码为系数属于${-1,0,1}$的多项式$m(x)$，明文空间即为$\mathcal{M}={-1,0,1}^N$；同时，在参数选取为$(p,f(x))=(3,x^N-1)$时，有$\mathcal{M}=Z_p[x]/f(x)$</p>
+</li>
+<li><p>随机选取多项式$r(x) \in Z_p[x]/f(x)$</p>
+</li>
+<li><p>计算密文</p>
+</li>
+</ol>
+<p>$$<br>e(x) = r(x)h(x) + m(x) \pmod{q}<br>$$</p>
+
+        <h3 id="解密阶段"   >
+          <a href="#解密阶段" class="heading-link"><i class="fas fa-link"></i></a><a href="#解密阶段" class="headerlink" title="解密阶段"></a>解密阶段</h3>
+      <ol>
+<li>首先计算：（此处省略了多项式后的(x)）</li>
+</ol>
+<p>$$<br>\begin{aligned}<br>a   &amp;\equiv f<em>e \pmod{q} \<br>    &amp;\equiv f</em>(r<em>h+m) \pmod{q} \<br>    &amp;\equiv f</em>(r<em>p</em>g<em>f_{q}^{-1}+m) \pmod{q} \<br>    &amp;\equiv r</em>p<em>g + f</em>m \pmod{q}<br>\end{aligned}<br>$$</p>
+<pre><code>因为$r(x),g(x),f(x),m(x)$的系数都较小，故上述计算所得到的为恒等式
+</code></pre>
+<p>$$<br>a = r<em>p</em>g + f*m \quad in \ Z^N<br>$$</p>
+<pre><code>而非同余式
+</code></pre>
+<p>$$<br>a \equiv r<em>p</em>g + f*m \pmod{q}<br>$$</p>
+<ol start="2">
+<li>接下来计算：</li>
+</ol>
+<p>$$<br>\begin{aligned}<br>b   &amp;\equiv a<em>f_{p}^{-1} \pmod{p} \<br>    &amp;\equiv (r</em>g + f<em>m)<em>f_{p}^{-1} \pmod{p} \<br>    &amp;\equiv r</em>p</em>g*f_{p}^{-1} + m \pmod{p} \<br>    &amp;\equiv m \pmod{p}<br>\end{aligned}<br>$$</p>
+<ol start="3">
+<li><p>需要注意的是，1中实际上为概率性算法，概率与q的取值有关，细节见下图：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1169376/202003/1169376-20200331095438297-372265146.png"></p>
+</li>
+</ol>
+
+        <h2 id="知识补充"   >
+          <a href="#知识补充" class="heading-link"><i class="fas fa-link"></i></a><a href="#知识补充" class="headerlink" title="知识补充"></a>知识补充</h2>
+      <blockquote>
+<p>这一部分主要为在代码实现时所要用到的算法</p>
+</blockquote>
+<p><strong>中心化处理取模</strong></p>
+<p>中心化处理，即模q运算或模p运算的结果以0为中心。</p>
+<p>比如模3运算的结果属于${-1，0，1}$而不是${0，1，2}$,<br>模256运算的结果属于${-127，-126，…，128}$而不是${0，1…，255}$。</p>
+<p>这样的中心化处理在代数上没有任何不同，但使得尺寸变小了。环$Z_q[x]/f(x)$和环$Z_p[x]/f(x)$都经过这样的中心化处理。</p>
+<p><strong>将明文编码为多项式</strong></p>
+<p>还没找到合适的算法……</p>
+<p><strong>判断多项式是否可逆</strong></p>
+<p>见<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.cnblogs.com/pam-sh/p/14253393.html#_label1_2" >NTRU - PamShao - 博客园</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>或论文《NTRU中多项式的逆问题》</p>
+<p><strong>多项式卷积计算与快速卷积</strong></p>
+<p>设$a(x), b(x), c(x) \in Z^N/f(x)$，其中$c(x)$为a(x)与b(x)的卷积计算结果，记作</p>
+<p>$$<br>c(x) = a(x) \otimes b(x)<br>$$</p>
+<p>将上述多项式表示为向量形式，如下：</p>
+<p>$$<br>\begin{aligned}<br>a &amp;= (a_0, a_1, a_2, \cdots, a_{N-1}) \<br>b &amp;= (b_0, b_1, b_2, \cdots, b_{N-1}) \<br>c &amp;= (c_0, c_1, c_2, \cdots, c_{N-1})<br>\end{aligned}<br>$$</p>
+<p>由于$X^N \equiv 1 \pmod{X^N -1}$，故乘积后有$X^{N+i} \equiv X^i \pmod{X^N -1}$，进而可以得到：</p>
+<p>$$<br>c_k = \sum_{i+j \equiv k \mod{N}} a_i b_j<br>$$</p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://blog.csdn.net/yu132563/article/details/52658106" >快速卷积算法</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://freeman-cc.github.io">Cc</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://freeman-cc.github.io/tags/NTRU/">NTRU</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2022/04/09/hello-world/"><span class="paginator-prev__text">Hello World</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">
+          NTRU算法详解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">
+          算法背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">
+          算法流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E9%80%89%E5%8F%96"><span class="toc-number">1.2.1.</span> <span class="toc-text">
+          参数选取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E7%94%9F%E6%88%90"><span class="toc-number">1.2.2.</span> <span class="toc-text">
+          密钥生成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E9%98%B6%E6%AE%B5"><span class="toc-number">1.2.3.</span> <span class="toc-text">
+          加密阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%AF%86%E9%98%B6%E6%AE%B5"><span class="toc-number">1.2.4.</span> <span class="toc-text">
+          解密阶段</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85"><span class="toc-number">1.3.</span> <span class="toc-text">
+          知识补充</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">归档</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>Cc</span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.2</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>

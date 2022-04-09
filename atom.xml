@@ -6,7 +6,7 @@
   <link href="https://freeman-cc.github.io/atom.xml" rel="self"/>
   
   <link href="https://freeman-cc.github.io/"/>
-  <updated>2022-04-09T05:33:02.812Z</updated>
+  <updated>2022-04-09T12:23:20.969Z</updated>
   <id>https://freeman-cc.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>NTRU算法详解</title>
+    <link href="https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://freeman-cc.github.io/2022/04/09/NTRU%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</id>
+    <published>2022-04-09T06:17:00.000Z</published>
+    <updated>2022-04-09T12:23:20.969Z</updated>
+    
+    <content type="html"><![CDATA[        <h1 id="NTRU算法详解"   >          <a href="#NTRU算法详解" class="heading-link"><i class="fas fa-link"></i></a><a href="#NTRU算法详解" class="headerlink" title="NTRU算法详解"></a>NTRU算法详解</h1>              <h2 id="算法背景"   >          <a href="#算法背景" class="heading-link"><i class="fas fa-link"></i></a><a href="#算法背景" class="headerlink" title="算法背景"></a>算法背景</h2>      <pre><code>    NTRU是Hoffstem、Pipher和silverman在1998年提出的一种新的公钥密码体制。该体制是建立在多项式环的基础之上的，其安全性基于格上最短向量问题，可以有效抵抗Shor算法。由于NTRU运算简洁快速，与目前广泛使用的公钥密码系统RSA及椭圆曲线密码系统相比较，在安全要求相同的情况下，NTRU产生密钥对更快，在加密和解密效率上也具有一定的优势。但NTRU的原始方案的安全性一直没有得到严格的证明。    2011年，Stehle D，SteinfeldR在理想格上基于R-LWE问题构造了选择明文攻击安全的NTRU加密体制。2012年，Ron Steinfeld等人在理想格上提出了选择密文攻击安全的NTRU加密体制。</code></pre>        <h2 id="算法流程"   >          <a href="#算法流程" class="heading-link"><i class="fas fa-link"></i></a><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h2>      <p><img src=":/56283e34652f416aa83ba60b4c515dc8" alt="45454f65d2ae336cbc09c4e8178e8769.png"></p>        <h3 id="参数选取"   >          <a href="#参数选取" class="heading-link"><i class="fas fa-link"></i></a><a href="#参数选取" class="headerlink" title="参数选取"></a>参数选取</h3>      <p>N：次数参数，素数</p><p>q：大模数，正整数</p><p>p：小模数，奇素数或多项式</p><p>d：用来限制非0系数的个数，正整数</p><p>f(x)：模多项式，N次整系数多项式，将格$Z^N$构造为环$Z[x]/f(x)$</p><p>经典参数值：</p><p>$$<br>(N，q，p，d，f(x))=(251，256，3，72，x^N-1)<br>$$</p>        <h3 id="密钥生成"   >          <a href="#密钥生成" class="heading-link"><i class="fas fa-link"></i></a><a href="#密钥生成" class="headerlink" title="密钥生成"></a>密钥生成</h3>      <p>公钥：$(N, p, q, h(x))<br>$</p><p>私钥：$(f(x), f_{p}^{-1}(x))$</p><ol><li><p><strong>生成$f(x),f_{q}^{-1}(x),f_{p}^{-1}(x)$</strong></p><p>（1）在格$Z[x]$上选取多项式$f(x)$，满足$f(x)$的次数不超过N-1，系数为${-1, 0, 1}$中的值，且有d+1个系数为1，d个系数为-1，其他系数为0。</p><p>（2）检验$f(x)$在环$Z_q[x]/f(x)$上是否可逆，如果可逆则计算逆元$f_{q}^{-1}(x)$</p><p>（3）检验$f(x)$在环$Z_p[x]/f(x)$上是否可逆，如果可逆则计算逆元$f_{p}^{-1}(x)$</p><p>重复上述步骤，直至得到$(f_{q}^{-1}(x), f_{p}^{-1}(x))$</p></li><li><p><strong>生成</strong>$g(x)$</p><p>在格Z[x]上选取多项式$f(x)$，满足$f(x)$的次数不超过N-1，系数为${-1, 0, 1}$中的值，且有d+1个系数为1，d个系数为-1，其他系数为0</p></li><li><p><strong>计算</strong>$h(x)$</p></li></ol><p>$$<br>h(x) \equiv pg(x)f_{q}^{-1}(x) \pmod{q}<br>$$</p>        <h3 id="加密阶段"   >          <a href="#加密阶段" class="heading-link"><i class="fas fa-link"></i></a><a href="#加密阶段" class="headerlink" title="加密阶段"></a>加密阶段</h3>      <ol><li><p>将明文编码为系数属于${-1,0,1}$的多项式$m(x)$，明文空间即为$\mathcal{M}={-1,0,1}^N$；同时，在参数选取为$(p,f(x))=(3,x^N-1)$时，有$\mathcal{M}=Z_p[x]/f(x)$</p></li><li><p>随机选取多项式$r(x) \in Z_p[x]/f(x)$</p></li><li><p>计算密文</p></li></ol><p>$$<br>e(x) = r(x)h(x) + m(x) \pmod{q}<br>$$</p>        <h3 id="解密阶段"   >          <a href="#解密阶段" class="heading-link"><i class="fas fa-link"></i></a><a href="#解密阶段" class="headerlink" title="解密阶段"></a>解密阶段</h3>      <ol><li>首先计算：（此处省略了多项式后的(x)）</li></ol><p>$$<br>\begin{aligned}<br>a   &amp;\equiv f<em>e \pmod{q} \<br>    &amp;\equiv f</em>(r<em>h+m) \pmod{q} \<br>    &amp;\equiv f</em>(r<em>p</em>g<em>f_{q}^{-1}+m) \pmod{q} \<br>    &amp;\equiv r</em>p<em>g + f</em>m \pmod{q}<br>\end{aligned}<br>$$</p><pre><code>因为$r(x),g(x),f(x),m(x)$的系数都较小，故上述计算所得到的为恒等式</code></pre><p>$$<br>a = r<em>p</em>g + f*m \quad in \ Z^N<br>$$</p><pre><code>而非同余式</code></pre><p>$$<br>a \equiv r<em>p</em>g + f*m \pmod{q}<br>$$</p><ol start="2"><li>接下来计算：</li></ol><p>$$<br>\begin{aligned}<br>b   &amp;\equiv a<em>f_{p}^{-1} \pmod{p} \<br>    &amp;\equiv (r</em>g + f<em>m)<em>f_{p}^{-1} \pmod{p} \<br>    &amp;\equiv r</em>p</em>g*f_{p}^{-1} + m \pmod{p} \<br>    &amp;\equiv m \pmod{p}<br>\end{aligned}<br>$$</p><ol start="3"><li><p>需要注意的是，1中实际上为概率性算法，概率与q的取值有关，细节见下图：</p><p><img src="https://img2020.cnblogs.com/blog/1169376/202003/1169376-20200331095438297-372265146.png"></p></li></ol>        <h2 id="知识补充"   >          <a href="#知识补充" class="heading-link"><i class="fas fa-link"></i></a><a href="#知识补充" class="headerlink" title="知识补充"></a>知识补充</h2>      <blockquote><p>这一部分主要为在代码实现时所要用到的算法</p></blockquote><p><strong>中心化处理取模</strong></p><p>中心化处理，即模q运算或模p运算的结果以0为中心。</p><p>比如模3运算的结果属于${-1，0，1}$而不是${0，1，2}$,<br>模256运算的结果属于${-127，-126，…，128}$而不是${0，1…，255}$。</p><p>这样的中心化处理在代数上没有任何不同，但使得尺寸变小了。环$Z_q[x]/f(x)$和环$Z_p[x]/f(x)$都经过这样的中心化处理。</p><p><strong>将明文编码为多项式</strong></p><p>还没找到合适的算法……</p><p><strong>判断多项式是否可逆</strong></p><p>见<span class="exturl"><a class="exturl__link"   href="https://www.cnblogs.com/pam-sh/p/14253393.html#_label1_2" >NTRU - PamShao - 博客园</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>或论文《NTRU中多项式的逆问题》</p><p><strong>多项式卷积计算与快速卷积</strong></p><p>设$a(x), b(x), c(x) \in Z^N/f(x)$，其中$c(x)$为a(x)与b(x)的卷积计算结果，记作</p><p>$$<br>c(x) = a(x) \otimes b(x)<br>$$</p><p>将上述多项式表示为向量形式，如下：</p><p>$$<br>\begin{aligned}<br>a &amp;= (a_0, a_1, a_2, \cdots, a_{N-1}) \<br>b &amp;= (b_0, b_1, b_2, \cdots, b_{N-1}) \<br>c &amp;= (c_0, c_1, c_2, \cdots, c_{N-1})<br>\end{aligned}<br>$$</p><p>由于$X^N \equiv 1 \pmod{X^N -1}$，故乘积后有$X^{N+i} \equiv X^i \pmod{X^N -1}$，进而可以得到：</p><p>$$<br>c_k = \sum_{i+j \equiv k \mod{N}} a_i b_j<br>$$</p><p><span class="exturl"><a class="exturl__link"   href="https://blog.csdn.net/yu132563/article/details/52658106" >快速卷积算法</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">
+        &lt;h1 id=&quot;NTRU算法详解&quot;   &gt;
+          &lt;a href=&quot;#NTRU算法详解&quot; class=&quot;heading-link&quot;&gt;&lt;i class=&quot;fas fa-link&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;a href=&quot;#NTRU算法详解&quot; class=&quot;</summary>
+      
+    
+    
+    
+    
+    <category term="NTRU" scheme="https://freeman-cc.github.io/tags/NTRU/"/>
+    
+  </entry>
   
   <entry>
     <title>Hello World</title>
